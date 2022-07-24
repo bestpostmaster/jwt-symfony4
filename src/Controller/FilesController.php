@@ -57,9 +57,9 @@ class FilesController extends AbstractController
         $file->setRealDir('/public/up/');
         $file->setName($name);
         $file->setClientName($receivedFile->getClientOriginalName());
-        $file->setUploadDate(new \DateTime('now'));
+        $file->setUploadDate(new \DateTime('now', new \DateTimeZone('Europe/Paris')));
         $file->setUser($this->getUser());
-        $file->setSize(filesize($directory.$name));
+        $file->setSize(filesize($directory.$name)/1000000);
         $file->setScaned(false);
         $file->setDescription($receivedFile->getClientOriginalName());
         $file->setDownloadCounter(0);
@@ -113,20 +113,36 @@ class FilesController extends AbstractController
      * TO DO
      * @Route("/api/files/delete/{fileId}", name="app_files_delete")
      */
-    public function deleteById(HostedFileRepository $hostedFileRepository): Response
+    public function deleteById(Request $request, HostedFileRepository $hostedFileRepository): Response
     {
         $userId = ($this->getUser())->getId();
+        $id = $request->get("fileId");
 
-        if($this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            return $this->json($hostedFileRepository->findAll(), 200, [], ['groups' => 'file:read']);
+        if(!$this->container->get('security.authorization_checker')->isGranted('ROLE_USER')) {
+            throw new \Exception('No user logged in');
         }
 
-        return $this->json($hostedFileRepository->findBy(['user' => $userId]), 200, [], ['groups' => 'file:read']);
+        if($this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            $result = $hostedFileRepository->findOneBy(['id' => $id]);
+        }
+        else {
+            $result = $hostedFileRepository->findOneBy(['url' => $id, 'user' => $userId]);
+        }
+
+        if(!$result) {
+            throw $this->createNotFoundException('The file does not exist');
+        }
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($result);
+        $manager->flush();
+
+        return $this->json([], 200);
     }
 
     /**
      * TO DO
-     * @Route("/api/files/convert", name="app_files_convert")
+     * @Route("/api/files/convert/{fileId}/{convertTo}", name="app_files_convert")
      */
     public function convert(HostedFileRepository $hostedFileRepository): Response
     {

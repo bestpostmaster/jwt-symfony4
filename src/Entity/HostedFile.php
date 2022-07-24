@@ -57,7 +57,8 @@ class HostedFile
     private string $virtualDirectory;
 
     /**
-     * @ORM\Column(type="bigint")
+     * Size in MB
+     * @ORM\Column(type="float")
      * @groups("file:read")
      */
     private $size;
@@ -157,12 +158,12 @@ class HostedFile
         return $this;
     }
 
-    public function getSize(): ?string
+    public function getSize(): ?float
     {
         return $this->size;
     }
 
-    public function setSize(int $size): self
+    public function setSize(float $size): self
     {
         $this->size = $size;
 

@@ -49,6 +49,65 @@ class User implements UserInterface
     private int $totalSpaceUsedMo;
 
     /**
+     * @ORM\Column(type="integer", length=60, nullable=true)
+     */
+    private $authorizedSizeMo = 500000000;
+
+    private \DateTimeInterface $registrationDate;
+
+    /**
+     * @return \DateTimeInterface
+     */
+    public function getRegistrationDate(): \DateTimeInterface
+    {
+        return $this->registrationDate;
+    }
+
+    /**
+     * @param \DateTimeInterface $registrationDate
+     */
+    public function setRegistrationDate(\DateTimeInterface $registrationDate): void
+    {
+        $this->registrationDate = $registrationDate;
+    }
+
+    /**
+     * @return \DateTimeInterface
+     */
+    public function getLastConnexionDate(): \DateTimeInterface
+    {
+        return $this->lastConnexionDate;
+    }
+
+    /**
+     * @param \DateTimeInterface $lastConnexionDate
+     */
+    public function setLastConnexionDate(\DateTimeInterface $lastConnexionDate): void
+    {
+        $this->lastConnexionDate = $lastConnexionDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSecretTokenForValidation(): string
+    {
+        return $this->secretTokenForValidation;
+    }
+
+    /**
+     * @param string $secretTokenForValidation
+     */
+    public function setSecretTokenForValidation(string $secretTokenForValidation): void
+    {
+        $this->secretTokenForValidation = $secretTokenForValidation;
+    }
+
+    private \DateTimeInterface $lastConnexionDate;
+
+    private string $secretTokenForValidation;
+
+    /**
      * @return int
      */
     public function getTotalSpaceUsedMo(): int
@@ -75,11 +134,6 @@ class User implements UserInterface
 
         return $this;
     }
-
-    /**
-     * @ORM\Column(type="integer", length=60, nullable=true)
-     */
-    private $authorizedSizeMo = 500000000;
 
     public function getFiles()
     {
